@@ -9,6 +9,10 @@ import 'element-ui/lib/theme-chalk/index.css'
 // 设置title
 import VueWeChatTitle from 'vue-wechat-title'
 
+import LyTab from 'ly-tab'
+
+Vue.use(LyTab)
+
 Vue.config.productionTip = false
 
 Vue.use(VueWeChatTitle)
@@ -19,6 +23,8 @@ Vue.use(ElementUI)
 new Vue({
   el: '#app',
   router,
-  components: { App },
+  components: {
+    App
+  },
   template: '<App/>'
 })
