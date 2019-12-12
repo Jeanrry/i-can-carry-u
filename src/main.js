@@ -3,8 +3,8 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
+// import ELEMENT from 'element-ui'
+// import 'element-ui/lib/theme-chalk/index.css'
 
 // 设置title
 import VueWeChatTitle from 'vue-wechat-title'
@@ -17,7 +17,7 @@ Vue.config.productionTip = false
 
 Vue.use(VueWeChatTitle)
 
-Vue.use(ElementUI)
+// Vue.use(ELEMENT)
 
 /* eslint-disable no-new */
 new Vue({

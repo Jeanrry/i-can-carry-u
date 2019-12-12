@@ -12,7 +12,7 @@
         <i class="el-icon-menu"></i>
       </div>
     </div>
-    <div style="margin-top:50px; width: 100%;">
+    <div style="margin-top:10px; width: 100%;">
       <div :style="transform">
         <svg
           width="400px"
@@ -23,7 +23,7 @@
         >
           <defs>
             <clipPath id="cut-off-bottom">
-              <circle id="circle" cx="50" cy="50" r="47" />
+              <circle id="circle" cx="50" cy="50" r="44" />
             </clipPath>
           </defs>
 
@@ -40,17 +40,18 @@
             @click="textOnclick"
           />
 
-          <circle v-if="!teamMater" id="circle" cx="50" cy="50" r="50" fill="green" />
-          <circle v-if="teamMater" id="circle" cx="50" cy="50" r="50" fill="#1d98bd" />
+          <circle v-if="!teamMater" id="circle" cx="50" cy="50" r="47" fill="green" />
+          <circle v-if="teamMater" id="circle" cx="50" cy="50" r="47" fill="#1d98bd" />
           <image
             clip-path="url(#cut-off-bottom)"
             :x="imagePositionX"
             :y="imagePositionY"
-            width="98"
-            height="98"
+            width="92"
+            height="92"
             :xlink:href="'static/hreoImg/' + selectedHero + '.jpg'"
             @click="imageOnclick"
           />
+          <!-- https://jeanrry-test-1251663958.cos.ap-beijing.myqcloud.com/icancarryu/hero/105.jpg -->
           <!-- <image clip-path="url(#cut-off-bottom)" :x="x" :y="y" width="90" height="90" xlink:href="../../../static/hreoImg/105.jpg" /> -->
 
           <text
@@ -64,6 +65,8 @@
         </svg>
       </div>
     </div>
+
+    <el-button type="primary" @click="saveSvgToPng" icon="el-icon-download">保存图片到本地</el-button>
 
     <el-collapse-transition>
       <div v-if="textEditorVisible" class="transition-box">
@@ -143,7 +146,7 @@
                 <img
                   :width="imageSize"
                   :height="imageSize"
-                  :src="'static/hreoImg/' + item.id + '.jpg'"
+                  :src="'https://jeanrry-test-1251663958.cos.ap-beijing.myqcloud.com/icancarryu/hero/' + item.id + '.jpg'"
                   alt
                 />
                 <div
@@ -166,12 +169,6 @@
         </div>
       </div>
     </el-collapse-transition>
-    <el-button
-      style="margin: 100px 0"
-      type="primary"
-      @click="saveSvgToPng"
-      icon="el-icon-download"
-    >保存图片到本地</el-button>
 
     <el-drawer :visible.sync="menuVisible" class="menu-list" :size="menuSize + '%'" direction="rtl">
       <!-- http://jeanrryy.mikecrm.com/sve0xWZ -->
@@ -194,10 +191,10 @@ export default {
     return {
       title: "i-can-carry-u",
       test: "",
-      imagePositionX: 1,
-      imagePositionY: 1,
+      imagePositionX: 4,
+      imagePositionY: 4,
       imageSize: 100,
-      href: "../../../static/hreoImg/105.jpg",
+      href: "static/hreoImg/166.jpg",
       saohua: "正在前往支援",
       selectedHero: 166,
       scale: 1,
@@ -249,6 +246,7 @@ export default {
           imgList: []
         }
       ],
+      textTabsItem: [],
       activeImgName: "0",
       activeTextName: "防守",
       selectedImgId: 0,
@@ -296,6 +294,7 @@ export default {
     // console.log(document.body.clientWidth);
     // alert(navigator.userAgent)
     // console.log(navigator);
+    this.textTabsItem = textTabsItem;
     if (
       navigator.userAgent.match(
         /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
@@ -320,16 +319,22 @@ export default {
     },
     saveSvgToPng() {
       // 调研使用 saveSvgAsPng 的方式
-      saveSvg.saveSvgAsPng(document.getElementById("saohuaSvg"), "diagram.png");
+      saveSvg.saveSvgAsPng(document.getElementById("saohuaSvg"), "diagram.png", {scale: 0.3});
     },
     imageOnclick() {
       this.textEditorVisible = false;
       this.textSelecterVisible = false;
+      if (this.imgEditorVisible) {
+        this.imgSelecterVisible = false;
+      }
       this.imgEditorVisible = !this.imgEditorVisible;
     },
     textOnclick() {
       this.imgEditorVisible = false;
       this.imgSelecterVisible = false;
+      if (this.textEditorVisible) {
+        this.textSelecterVisible = false;
+      }
       this.textEditorVisible = !this.textEditorVisible;
     },
     handleClick(tab, event) {
@@ -368,7 +373,7 @@ export default {
       window.open("http://jeanrryy.mikecrm.com/sve0xWZ", "_blank");
     },
     contentOnclick() {
-      this.$message('算了吧，你带不动');
+      this.$message("算了吧，你带不动");
     }
     // covertSVG2Image(node, name, width, height, type = "png") {
     //   let serializer = new XMLSerializer();
@@ -405,6 +410,7 @@ export default {
     margin-bottom: 10px;
   }
   &__item {
+    text-align: center;
     height: 40px;
     line-height: 40px;
     font-size: 16px;

@@ -21,11 +21,11 @@ export default new Router({
       name: 'introduce',
       component: resolve => require(['@/pages/ICanCarryU/Introduce'], resolve)
     },
-    // {
-    //   path: '/test',
-    //   name: 'test',
-    //   component: resolve => require(['@/pages/test/Test'], resolve)
-    // },
+    {
+      path: '/test',
+      name: 'test',
+      component: resolve => require(['@/pages/test/Test'], resolve)
+    },
     // {
     //   path: '/404',
     //   name: 'notFound',
