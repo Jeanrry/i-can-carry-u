@@ -1,207 +1,160 @@
   <template>
   <div class="i-can-carry-u" v-wechat-title="this.title">
-    <div style="width: 100%; height: 60px">
-      <div
-        style="float: left; height: 60px; line-height: 60px; font-size: 20px; padding-left: 20px"
-      >I CAN CARRY YOU</div>
-
-      <div
-        style="float: right; height: 60px; line-height: 60px; font-size: 16px; padding-right: 20px"
-        @click="menuVisible = true"
-      >
+    <header>
+      <div class="title">I CAN CARRY YOU</div>
+      <div class="menu" @click="menuVisible = true">
         <i class="el-icon-menu"></i>
       </div>
-    </div>
-    <div style="margin-top:10px; width: 100%;">
-      <div :style="transform">
-        <svg
-          width="400px"
-          height="100px"
-          version="1.1"
-          xmlns="http://www.w3.org/2000/svg"
-          id="saohuaSvg"
-        >
-          <defs>
-            <clipPath id="cut-off-bottom">
-              <circle id="circle" cx="50" cy="50" r="44" />
-            </clipPath>
-          </defs>
+    </header>
 
-          <rect
-            x="5"
-            y="5"
-            width="390"
-            height="90"
-            rx="45"
-            ry="45"
-            fill="#1A2515"
-            stroke="#87CEFA"
-            stroke-width="3"
-            @click="textOnclick"
-          />
-
-          <circle v-if="!teamMater" id="circle" cx="50" cy="50" r="47" fill="green" />
-          <circle v-if="teamMater" id="circle" cx="50" cy="50" r="47" fill="#1d98bd" />
-          <image
-            clip-path="url(#cut-off-bottom)"
-            :x="imagePositionX"
-            :y="imagePositionY"
-            width="92"
-            height="92"
-            :xlink:href="'static/hreoImg/' + selectedHero + '.jpg'"
-            @click="imageOnclick"
-          />
-          <!-- https://jeanrry-test-1251663958.cos.ap-beijing.myqcloud.com/icancarryu/hero/105.jpg -->
-          <!-- <image clip-path="url(#cut-off-bottom)" :x="x" :y="y" width="90" height="90" xlink:href="../../../static/hreoImg/105.jpg" /> -->
-
-          <text
-            x="235"
-            y="52"
-            fill="#F8F8FF"
-            font-size="32"
-            style="dominant-baseline:middle;text-anchor:middle;"
-            @click="textOnclick"
-          >{{ saohua }}</text>
-        </svg>
-      </div>
-    </div>
-
-    <el-button type="primary" @click="saveSvgToPng" icon="el-icon-download">保存图片到本地</el-button>
-
-    <el-collapse-transition>
-      <div v-if="textEditorVisible" class="transition-box">
-        <div class="transition-box__box">
-          <el-form ref="form" :model="form" label-width="80px">
-            <el-form-item label="语音选择">
-              <el-input v-model="saohua" maxlength="8" @blur="editorOnblur" @focus="editorOnfocus"></el-input>
-            </el-form-item>此处最多输入8个字
-          </el-form>
-        </div>
-      </div>
-    </el-collapse-transition>
-
-    <el-collapse-transition>
-      <div v-if="textSelecterVisible" class="transition-box">
-        <div class="transition-box__box">
-          <ly-tab
-            v-model="selectedTextId"
-            :items="textTabsItem"
-            :options="options"
-            @change="textTabOnclick"
-          ></ly-tab>
-          <el-tabs v-model="activeTextName" @tab-click="handleClick">
-            <el-tab-pane
-              v-for="(tItem, tIndex) in textTabsItem"
-              :key="tIndex"
-              :label="tItem.label"
-              :name="tItem.label"
-              style="text-align: left;"
-            >
-              <div
-                v-for="tItemC in tItem.textList"
-                :key="tItemC"
-                class="transition-box__box--text-span"
-                @click="textSpanOnclick(tItemC)"
-              >{{ tItemC }}</div>
-            </el-tab-pane>
-          </el-tabs>
-        </div>
-      </div>
-    </el-collapse-transition>
-    <el-collapse-transition>
-      <div v-if="imgEditorVisible" class="transition-box">
-        <div class="transition-box__box">
-          <div style="padding: 10px 0">
-            <el-switch v-model="teamMater" active-text="队友" inactive-text="自己"></el-switch>
+    <div>
+      <div class="img-preview">
+        <div class="img-preview__canvas">
+          <div>
+            <canvas id="canvas" ref="faultTree" width="400" height="100"></canvas>
           </div>
-          <div style="padding-bottom: 10px">
-            <el-button type="primary" size="medium" @click="changeImgOnclick">换头像</el-button>
+        </div>
+        <div class="img-preview__img">
+          <div>
+            <img :width="imgW" :height="imgW / 4" :src="dataURL" alt />
           </div>
         </div>
       </div>
-    </el-collapse-transition>
-    <el-collapse-transition>
-      <div v-if="imgSelecterVisible" class="transition-box">
-        <div class="transition-box__box">
-          <ly-tab
-            v-model="selectedImgId"
-            :items="imgTabsItem"
-            :options="options"
-            @change="imgTabOnclick"
-          ></ly-tab>
-          <el-tabs v-model="activeImgName" @tab-click="handleClick">
-            <el-tab-pane
-              v-for="(tItem, tIndex) in imgTabsItem"
-              :key="tIndex"
-              :label="tItem.label"
-              :name="tItem.name"
-              style="text-align: left;"
-            >
-              <div
-                v-for="(item, index) in tItem.imgList"
-                :key="index"
-                class="select-img"
-                @click="heroImgOnclick(item)"
-              >
-                <img
-                  :width="imageSize"
-                  :height="imageSize"
-                  :src="'https://jeanrry-test-1251663958.cos.ap-beijing.myqcloud.com/icancarryu/hero/' + item.id + '.jpg'"
-                  alt
-                />
-                <div
-                  v-if="item.id !== selectedHero"
-                  class="select-img__unselected"
-                  :style="maskStyle"
-                ></div>
-                <div
-                  v-if="item.id === selectedHero"
-                  class="select-img__selected"
-                  :style="maskStyle"
+      <ly-tab
+        v-model="selectedSettingListId"
+        :items="settingList"
+        :options="options"
+        @change="settingTabOnclick"
+      ></ly-tab>
+      <el-tabs v-model="selectedSettingListName" @tab-click="settingTabOnclick">
+        <el-tab-pane label="换头像" name="0">
+          <div class="tab-choose">
+            <div style="padding-bottom: 10px">
+              <el-switch v-model="teamMater" active-text="队友" inactive-text="自己"></el-switch>
+            </div>
+
+            <div class="tab-choose__picker">
+              <ly-tab
+                v-model="selectedImgId"
+                :items="imgTabsItem"
+                :options="options"
+                @change="imgTabOnclick"
+              ></ly-tab>
+              <el-tabs v-model="activeImgName" @tab-click="handleClick">
+                <el-tab-pane
+                  v-for="(tItem, tIndex) in imgTabsItem"
+                  :key="tIndex"
+                  :label="tItem.label"
+                  :name="tItem.name"
+                  style="text-align: left;"
                 >
-                  <div class="select-img--icon">
-                    <i class="el-icon-circle-check" :style="selectedIcon"></i>
+                  <div
+                    v-for="(item, index) in tItem.imgList"
+                    :key="index"
+                    class="select-img"
+                    @click="heroImgOnclick(item)"
+                  >
+                    <img
+                      :width="imageSize"
+                      :height="imageSize"
+                      :src="'https://jeanrry-test-1251663958.cos.ap-beijing.myqcloud.com/icancarryu/hero/' + item.id + '.jpg'"
+                      alt
+                    />
+                    <div
+                      v-if="item.id !== selectedHero"
+                      class="select-img__unselected"
+                      :style="maskStyle"
+                    ></div>
+                    <div
+                      v-if="item.id === selectedHero"
+                      class="select-img__selected"
+                      :style="maskStyle"
+                    >
+                      <div class="select-img--icon">
+                        <i class="el-icon-circle-check" :style="selectedIcon"></i>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </el-tab-pane>
-          </el-tabs>
-        </div>
-      </div>
-    </el-collapse-transition>
+                </el-tab-pane>
+              </el-tabs>
+            </div>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="改文字" name="1">
+          <div class="tab-choose">
+            <el-form ref="form" :model="form" label-width="80px">
+              <el-form-item label="语音选择">
+                <el-input
+                  v-model="saohua"
+                  maxlength="8"
+                  @blur="editorOnblur"
+                  @focus="editorOnfocus"
+                ></el-input>
+              </el-form-item>
+              <div style="padding-bottom: 10px">此处最多输入8个字</div>
+            </el-form>
+            <div class="tab-choose__picker">
+              <ly-tab
+                v-model="selectedTextId"
+                :items="textTabsItem"
+                :options="options"
+                @change="textTabOnclick"
+              ></ly-tab>
+              <el-tabs v-model="activeTextName" @tab-click="handleClick">
+                <el-tab-pane
+                  v-for="(tItem, tIndex) in textTabsItem"
+                  :key="tIndex"
+                  :label="tItem.label"
+                  :name="tItem.label"
+                  style="text-align: left;"
+                >
+                  <div
+                    v-for="tItemC in tItem.textList"
+                    :key="tItemC"
+                    class="tab-choose__picker--text-span"
+                    @click="textSpanOnclick(tItemC)"
+                  >{{ tItemC }}</div>
+                </el-tab-pane>
+              </el-tabs>
+            </div>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+
+    <footer>
+      <!-- <el-button type="primary" icon="el-icon-download">保存图片到本地</el-button> -->
+      <el-popover width="200" trigger="click">
+        俺改了，长按保存即可！↑↑↑
+        <el-button slot="reference" type="primary" icon="el-icon-download">保存图片到本地</el-button>
+      </el-popover>
+    </footer>
 
     <el-drawer :visible.sync="menuVisible" class="menu-list" :size="menuSize + '%'" direction="rtl">
-      <!-- http://jeanrryy.mikecrm.com/sve0xWZ -->
-      <!-- window.open('http://jeanrryy.mikecrm.com/sve0xWZ', '_blank') -->
       <div class="menu-list__item" @click="$router.push('/introduce')">功能介绍</div>
       <div class="menu-list__item" @click="suggestOnclick">bug反馈</div>
       <div class="menu-list__item" @click="suggestOnclick">意见建议</div>
+      <!-- <div class="menu-list__item" @click="$router.push('/beta')" style="color: #53A8FF">beta实验室</div> -->
       <div class="menu-list__item" @click="contentOnclick">带我上分</div>
     </el-drawer>
   </div>
 </template>
 
   <script>
-import saveSvg from "save-svg-as-png";
-
 import herosInfo from "@/mixins/herosInfo";
+
 export default {
   name: "index",
   data() {
     return {
       title: "i-can-carry-u",
-      test: "",
-      imagePositionX: 4,
-      imagePositionY: 4,
+      userAgent: "",
       imageSize: 100,
-      href: "static/hreoImg/166.jpg",
+      dataURL: "",
       saohua: "正在前往支援",
       selectedHero: 166,
       scale: 1,
-      imgEditorVisible: false,
-      imgSelecterVisible: false,
-      textEditorVisible: false,
-      textSelecterVisible: false,
+      imgW: 400,
       imgTabsItem: [
         {
           label: "全部",
@@ -260,7 +213,19 @@ export default {
         // 可在这里指定labelKey为你数据里文字对应的字段名
       },
       menuVisible: false,
-      menuSize: 30
+      menuSize: 30,
+      selectedSettingListId: 0,
+      selectedSettingListName: "0",
+      settingList: [
+        {
+          id: 0,
+          label: "换头像"
+        },
+        {
+          id: 1,
+          label: "改文字"
+        }
+      ]
     };
   },
   mixins: [herosInfo],
@@ -285,58 +250,127 @@ export default {
       );
     }
   },
+  watch: {
+    saohua(val) {
+      this.initCanvas();
+    },
+    selectedHero(val) {
+      this.initCanvas();
+    },
+    teamMater(val) {
+      this.initCanvas();
+    }
+  },
   created() {
     for (let item in this.imgTabsItem) {
       this.imgTabsItem[item].imgList = this[this.imgTabsItem[item].imgListName];
     }
   },
   mounted() {
-    // console.log(document.body.clientWidth);
-    // alert(navigator.userAgent)
-    // console.log(navigator);
     this.textTabsItem = textTabsItem;
     if (
       navigator.userAgent.match(
         /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
       )
     ) {
-      // console.log("手机");
-      this.test = "mobile";
+      this.userAgent = "mobile";
       this.scale = document.body.clientWidth / 600;
+      this.imgW = (document.body.clientWidth * 2) / 3;
       this.menuSize = 50;
-      // alert(document.body.clientWidth);
       this.imageSize = (document.body.clientWidth - 120) / 6;
-      // alert(this.scale);
     } else {
-      // console.log("电脑");
-      this.test = "电脑";
+      this.userAgent = "电脑";
     }
-    // console.log(this.wizardsList)
+
+    this.initCanvas();
   },
   methods: {
-    handleSelect(key, keyPath) {
-      // console.log(key, keyPath);
-    },
-    saveSvgToPng() {
-      // 调研使用 saveSvgAsPng 的方式
-      saveSvg.saveSvgAsPng(document.getElementById("saohuaSvg"), "diagram.png", {scale: 0.3});
-    },
-    imageOnclick() {
-      this.textEditorVisible = false;
-      this.textSelecterVisible = false;
-      if (this.imgEditorVisible) {
-        this.imgSelecterVisible = false;
+    initCanvas() {
+      let canvas = document.getElementById("canvas");
+      canvas.width = this.imgW + "";
+      canvas.height = this.imgW / 4 + "";
+      this.ctx = canvas.getContext("2d");
+      // 右侧黑底蓝边框
+      this.ctx.beginPath();
+      this.ctx.moveTo(this.imgW / 8, this.imgW / 80);
+      this.ctx.lineTo((this.imgW * 7) / 8, this.imgW / 80);
+      this.ctx.arc(
+        (this.imgW * 7) / 8,
+        this.imgW / 8,
+        (this.imgW * 9) / 80,
+        (Math.PI * 3) / 2,
+        (Math.PI * 5) / 2
+      );
+      this.ctx.lineTo(this.imgW / 8, (this.imgW * 19) / 80);
+      this.ctx.lineTo(this.imgW / 8, this.imgW / 80);
+      this.ctx.fillStyle = "#1A2515";
+      this.ctx.fill();
+      this.ctx.strokeStyle = "#87CEFA";
+      this.ctx.lineWidth = this.imgW / 100;
+      this.ctx.stroke();
+      this.ctx.closePath();
+      // 左侧头像框
+      this.ctx.beginPath();
+      this.ctx.arc(
+        this.imgW / 8,
+        this.imgW / 8,
+        (this.imgW * 43) / 400,
+        0,
+        Math.PI * 2
+      );
+      if (this.teamMater) {
+        this.ctx.strokeStyle = "#1d98bd";
+      } else {
+        this.ctx.strokeStyle = "green";
       }
-      this.imgEditorVisible = !this.imgEditorVisible;
-    },
-    textOnclick() {
-      this.imgEditorVisible = false;
-      this.imgSelecterVisible = false;
-      if (this.textEditorVisible) {
-        this.textSelecterVisible = false;
+      this.ctx.lineWidth = this.imgW / 50;
+      this.ctx.stroke();
+      this.ctx.closePath();
+
+      // 圆形头像
+      let img = new Image();
+      img.src = "static/hreoImg/" + this.selectedHero + ".jpg";
+      img.onload = () => {
+        this.ctx.save();
+        this.ctx.clip();
+        this.ctx.drawImage(
+          img,
+          this.imgW / 100,
+          this.imgW / 100,
+          (this.imgW * 23) / 100,
+          (this.imgW * 23) / 100
+        );
+        this.ctx.restore();
+
+        this.getImg();
+      };
+
+      // 文字
+      this.ctx.font = (this.imgW * 2) / 25 + "px bold";
+      this.ctx.fillStyle = "#F8F8FF";
+      this.ctx.textAlign = "center";
+      this.ctx.textBaseline = "middle";
+      if (this.saohua.length < 4) {
+        this.ctx.fillText(this.saohua, (this.imgW * 11) / 20, this.imgW / 8);
+      } else {
+        this.ctx.fillText(this.saohua, (this.imgW * 47) / 80, this.imgW / 8);
       }
-      this.textEditorVisible = !this.textEditorVisible;
     },
+    getImg() {
+      let self = this;
+      let ref = this.$refs.faultTree; // 截图区域
+      html2canvas(ref, {
+        backgroundColor: "transparent"
+      }).then(canvas => {
+        let dataURL = canvas.toDataURL("image/png");
+        self.dataURL = dataURL;
+      });
+    },
+    settingTabOnclick(e) {
+      this.selectedSettingListId = e.id;
+      this.selectedSettingListName = e.id + "";
+    },
+    dlBtnOnclick() {},
     handleClick(tab, event) {
       // console.log(tab, event);
     },
@@ -344,30 +378,13 @@ export default {
       this.activeImgName = index + "";
     },
     textTabOnclick(item, index) {
-      // console.log(item);
-      // console.log(index);
       this.activeTextName = item.label;
     },
     heroImgOnclick(value) {
-      // console.log(value);
       this.selectedHero = value.id;
-      this.imgSelecterVisible = false;
     },
     textSpanOnclick(value) {
-      // console.log(value);
       this.saohua = value;
-      this.textSelecterVisible = false;
-    },
-    editorOnblur(e) {
-      // console.log(e);
-      // this.textSelecterVisible = false;
-    },
-    editorOnfocus(e) {
-      // console.log(e);
-      this.textSelecterVisible = true;
-    },
-    changeImgOnclick() {
-      this.imgSelecterVisible = true;
     },
     suggestOnclick() {
       window.open("http://jeanrryy.mikecrm.com/sve0xWZ", "_blank");
@@ -375,28 +392,6 @@ export default {
     contentOnclick() {
       this.$message("算了吧，你带不动");
     }
-    // covertSVG2Image(node, name, width, height, type = "png") {
-    //   let serializer = new XMLSerializer();
-    //   let source =
-    //     '<?xml version="1.0" standalone="no"?>\r\n' +
-    //     serializer.serializeToString(node);
-    //   let image = new Image();
-    //   image.src =
-    //     "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
-    //   let canvas = document.createElement("canvas");
-    //   canvas.width = width;
-    //   canvas.height = height;
-    //   let context = canvas.getContext("2d");
-    //   context.fillStyle = "#fff";
-    //   context.fillRect(0, 0, 10000, 10000);
-    //   image.onload = function() {
-    //     context.drawImage(image, 0, 0);
-    //     let a = document.createElement("a");
-    //     a.download = `${name}.${type}`;
-    //     a.href = canvas.toDataURL(`image/${type}`);
-    //     a.click();
-    //   };
-    // }
   }
 };
 </script>
@@ -405,28 +400,53 @@ export default {
 .i-can-carry-u {
   text-align: center;
 }
-.menu-list {
-  /deep/.el-drawer__header {
-    margin-bottom: 10px;
+header {
+  width: 100%;
+  height: 60px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1500;
+  background-color: #fff;
+
+  .title {
+    float: left;
+    height: 60px;
+    line-height: 60px;
+    font-size: 20px;
+    padding-left: 20px;
   }
-  &__item {
-    text-align: center;
-    height: 40px;
-    line-height: 40px;
+  .menu {
+    float: right;
+    height: 60px;
+    line-height: 60px;
     font-size: 16px;
+    padding-right: 20px;
   }
 }
-.transition-box {
-  // width: 100%;
-  margin: 20px;
-  // height: 400px;
 
-  &__box {
+.img-preview {
+  margin-top: 80px;
+  margin-bottom: 10px;
+  width: 100%;
+  position: relative;
+
+  &__img {
+    position: absolute;
+    width: 100%;
+    top: 0;
+  }
+}
+
+.tab-choose {
+  margin: 0 20px;
+
+  /deep/.el-form-item {
+    margin-bottom: 10px;
+  }
+
+  &__picker {
     box-shadow: 0 0px 6px 1px #eee;
-
-    /deep/.el-form {
-      padding: 10px;
-    }
 
     &--text-span {
       background-color: #ecf5ff;
@@ -443,6 +463,18 @@ export default {
       white-space: nowrap;
       text-align: center;
     }
+  }
+}
+
+.menu-list {
+  /deep/.el-drawer__header {
+    margin-bottom: 10px;
+  }
+  &__item {
+    text-align: center;
+    height: 40px;
+    line-height: 40px;
+    font-size: 16px;
   }
 }
 
@@ -493,5 +525,16 @@ export default {
 }
 /deep/.ly-tabbar {
   box-shadow: none;
+}
+
+footer {
+  width: 100%;
+  height: 40px;
+  padding: 10px 0;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 1500;
+  background-color: #fff;
 }
 </style>

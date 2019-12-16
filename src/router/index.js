@@ -1,9 +1,9 @@
 import Vue from 'vue'
-import Router from 'vue-router'
+import VueRouter from 'vue-router'
 
-Vue.use(Router)
+Vue.use(VueRouter)
 
-export default new Router({
+export default new VueRouter({
   mode: 'history',
   routes: [
     // {
@@ -20,6 +20,11 @@ export default new Router({
       path: '/introduce',
       name: 'introduce',
       component: resolve => require(['@/pages/ICanCarryU/Introduce'], resolve)
+    },
+    {
+      path: '/beta',
+      name: 'beta',
+      component: resolve => require(['@/pages/ICanCarryU/BetaLab'], resolve)
     },
     {
       path: '/test',

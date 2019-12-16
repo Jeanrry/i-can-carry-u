@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "element-ui": "^2.13.0",
+    "html2canvas": "^1.0.0-rc.5",
     "less": "^3.9.0",
     "less-loader": "^5.0.0",
     "ly-tab": "^2.1.2",
